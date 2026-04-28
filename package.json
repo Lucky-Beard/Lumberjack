@@ -1,0 +1,44 @@
+{
+  "name": "@luckybeard/lumberjack",
+  "version": "0.0.1",
+  "private": false,
+  "description": "A drop-in logging span for better wide logs",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "bun run build.ts",
+    "prepublishOnly": "bun run build",
+    "test": "bun test",
+    "test:coverage": "bun test --coverage",
+    "typecheck": "tsc --noEmit",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "lint": "oxlint"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/chalk": "^2.2.4",
+    "bun-plugin-dts": "^0.4.0",
+    "chalk": "^5.6.2",
+    "happy-dom": "^17.4.4",
+    "oxfmt": "^0.38.0",
+    "oxlint": "^1.53.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
