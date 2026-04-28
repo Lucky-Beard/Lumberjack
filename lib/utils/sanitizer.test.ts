@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { redact_email, redact_phone, sanitize_object } from "../lib/utils/sanitizer";
+import { redact_email, redact_phone, sanitize_object } from "./sanitizer";
 
 describe("redact_email", () => {
   test("keeps the first two characters and email domain", () => {
