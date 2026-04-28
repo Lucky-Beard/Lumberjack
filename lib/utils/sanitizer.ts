@@ -8,6 +8,12 @@ const redactorRegex = new RegExp(SENSITIVE_KEYWORDS.join("|"), "i");
 const emailRegex = new RegExp(EMAIL_KEYWORDS.join("|"), "i");
 const phoneRegex = new RegExp(PHONE_KEYWORDS.join("|"), "i");
 
+/**
+ * Redact an email address while preserving the first two characters and domain.
+ *
+ * @param input - Value to redact.
+ * @returns A masked email string, or `REDACTED_VALUE` for non-string values.
+ */
 export function redact_email(input: unknown): string {
   try {
     if (typeof input === "string") {
@@ -17,6 +23,12 @@ export function redact_email(input: unknown): string {
   return REDACTED_VALUE;
 }
 
+/**
+ * Redact a phone value while preserving the first two and last three characters.
+ *
+ * @param input - Phone value to redact.
+ * @returns A masked phone string, or `REDACTED_VALUE` for unsupported values.
+ */
 export function redact_phone(input: unknown): string {
   try {
     if (typeof input === "string" || typeof input === "number") {
@@ -27,6 +39,16 @@ export function redact_phone(input: unknown): string {
   return REDACTED_VALUE;
 }
 
+/**
+ * Clone an object and redact sensitive top-level values based on their keys.
+ *
+ * Email and phone keys use field-specific masking. Other sensitive keys are
+ * replaced with `REDACTED_VALUE`. Nested objects are cloned but not recursively
+ * sanitized.
+ *
+ * @param input - Object to clone and sanitize.
+ * @returns A sanitized clone of the input object.
+ */
 export function sanitize_object(input: Record<string, unknown>): Record<string, unknown> {
   const clonedData = structuredClone(input);
 
