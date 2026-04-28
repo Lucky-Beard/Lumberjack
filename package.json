@@ -1,8 +1,13 @@
 {
   "name": "@luckybeard/lumberjack",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": false,
-  "description": "A drop-in logging span for better wide logs",
+  "description": "A small structured logging helper for building wide, span-style log events.",
+  "author": {
+    "name": "Joshua Britz",
+    "email": "joshua@luckybeard.com",
+    "url": "https://www.luckybeard.com"
+  },
   "files": [
     "dist"
   ],
@@ -14,6 +19,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js"
     }
   },
   "publishConfig": {

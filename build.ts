@@ -21,6 +21,13 @@ const builds = await Promise.all([
     external: [],
     ...common_settings,
   }),
+  Bun.build({
+    entrypoints: ["./lib/testing/index.ts"],
+    outdir: "./dist/testing",
+    plugins: [dts()],
+    external: [],
+    ...common_settings,
+  }),
 ]);
 
 for (const build of builds) {

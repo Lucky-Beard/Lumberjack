@@ -1,7 +1,7 @@
-import type { SpanLogLevels } from "./types";
+import type { IClosedLog, ILoggingSpan, SpanLogLevels } from "./types";
 import { sanitize_object } from "./utils";
 
-export class ClosedLoggerSpan {
+export class ClosedLoggerSpan implements IClosedLog {
   #data: Record<string, unknown>;
   #level: SpanLogLevels;
 
@@ -20,7 +20,7 @@ export class ClosedLoggerSpan {
   }
 }
 
-export class LoggingSpan {
+export class LoggingSpan implements ILoggingSpan {
   #closed: boolean = false;
   #details: Map<string, unknown> = new Map();
   #level: SpanLogLevels = "info";
@@ -61,7 +61,7 @@ export class LoggingSpan {
     return this;
   }
 
-  public close(): IClosedLoggerSpan {
+  public close(): IClosedLog {
     this.#details.set("span.running_duration_ms", Date.now() - this.#start_time);
     this.#details.set("span.time_end", new Date().toISOString());
 
@@ -69,7 +69,7 @@ export class LoggingSpan {
     return new ClosedLoggerSpan(this.#details, this.#level);
   }
 
-  public log_close(): IClosedLoggerSpan {
+  public log_close(): IClosedLog {
     const data = this.close();
     console[this.#level](data.data);
     return data;
@@ -105,5 +105,3 @@ export class LoggingSpan {
     return value;
   }
 }
-
-export type IClosedLoggerSpan = ClosedLoggerSpan;
