@@ -1,3 +1,5 @@
+import type { SpanLogLevels } from "./types";
+
 export class ClosedLoggerSpan {
   #data: Record<string, unknown>;
   #level: SpanLogLevels;
