@@ -1,6 +1,6 @@
 {
   "name": "@luckybeard/lumberjack",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": false,
   "description": "A small structured logging helper for building wide, span-style log events.",
   "author": {
@@ -18,10 +18,12 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "require": "./dist/cjs/index.js",
       "import": "./dist/index.js"
     },
     "./testing": {
       "types": "./dist/testing/index.d.ts",
+      "require": "./dist/cjs/testing/index.js",
       "import": "./dist/testing/index.js"
     }
   },

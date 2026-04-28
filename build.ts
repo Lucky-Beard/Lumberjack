@@ -12,6 +12,12 @@ const common_settings: Omit<Bun.BuildConfig, "entrypoints" | "outdir" | "naming"
   define: {},
 };
 
+const cjs_settings: Omit<Bun.BuildConfig, "entrypoints" | "outdir" | "naming"> = {
+  format: "cjs",
+  minify: true,
+  define: {},
+};
+
 // Build worker and client in parallel
 const builds = await Promise.all([
   Bun.build({
@@ -22,11 +28,25 @@ const builds = await Promise.all([
     ...common_settings,
   }),
   Bun.build({
+    entrypoints: ["./index.ts"],
+    outdir: "./dist/cjs",
+    plugins: [dts()],
+    external: [],
+    ...cjs_settings,
+  }),
+  Bun.build({
     entrypoints: ["./lib/testing/index.ts"],
     outdir: "./dist/testing",
     plugins: [dts()],
     external: [],
     ...common_settings,
+  }),
+  Bun.build({
+    entrypoints: ["./lib/testing/index.ts"],
+    outdir: "./dist/cjs/testing",
+    plugins: [dts()],
+    external: [],
+    ...cjs_settings,
   }),
 ]);
 
