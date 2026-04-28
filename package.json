@@ -1,6 +1,6 @@
 {
   "name": "@luckybeard/lumberjack",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": false,
   "description": "A drop-in logging span for better wide logs",
   "files": [

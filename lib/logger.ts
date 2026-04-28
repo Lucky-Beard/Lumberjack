@@ -1,4 +1,5 @@
 import type { SpanLogLevels } from "./types";
+import { sanitize_object } from "./utils";
 
 export class ClosedLoggerSpan {
   #data: Record<string, unknown>;
@@ -88,35 +89,8 @@ export class LoggingSpan {
     return {
       status: response.status,
       statusText: response.statusText,
-      headers: Object.fromEntries(response.clone().headers.entries()),
+      headers: sanitize_object(Object.fromEntries(response.clone().headers.entries())),
     };
-  }
-
-  private sanitize_response_data(
-    data: Record<string, unknown>,
-  ): Record<string, unknown> | "[Redacted]" {
-    try {
-      const clonedData = structuredClone(data);
-
-      delete clonedData["token"];
-      delete clonedData["accessToken"];
-
-      if (typeof clonedData.otp !== "undefined") {
-        clonedData.otp = "***" + String(clonedData.otp).substring(3);
-      }
-
-      if (typeof clonedData.email === "string") {
-        clonedData.email = clonedData.email.replace(/(.{2}).+(@.+)/, "$1***$2");
-      }
-
-      if (typeof clonedData.phone === "string") {
-        clonedData.phone = clonedData.phone.replace(/(.{2}).+(.{3})/, "$1***$2");
-      }
-
-      return clonedData ?? {};
-    } catch {
-      return "[Redacted]";
-    }
   }
 
   private parse_value(value: unknown) {
@@ -125,7 +99,7 @@ export class LoggingSpan {
     } else if (value instanceof Response) {
       return this.create_response_value(value);
     } else if (typeof value === "object") {
-      return this.sanitize_response_data(value as Record<string, unknown>);
+      return sanitize_object(value as Record<string, unknown>);
     }
 
     return value;
