@@ -1,4 +1,13 @@
-import { rmSync, mkdirSync, readdirSync, statSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  renameSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import dts from "bun-plugin-dts";
 import chalk from "chalk";
 
@@ -70,6 +79,11 @@ const indexFile = readFileSync("./dist/index.js", "utf-8");
 const requireShimPattern = /var \w+\s*=\s*.*?Dynamic require of ".*?" is not supported.*?;\s*\n?/s;
 const newContent = indexFile.replace(requireShimPattern, "");
 writeFileSync("./dist/index.js", newContent, "utf-8");
+
+renameSync("./dist/cjs/index.js", "./dist/cjs/index.cjs");
+renameSync("./dist/cjs/testing/index.js", "./dist/cjs/testing/index.cjs");
+copyFileSync("./dist/cjs/index.d.ts", "./dist/cjs/index.d.cts");
+copyFileSync("./dist/cjs/testing/index.d.ts", "./dist/cjs/testing/index.d.cts");
 
 console.log("Build complete:");
 dir.forEach((file) => {
