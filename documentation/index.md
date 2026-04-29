@@ -1,10 +1,8 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
 hero:
   name: Lumberjack
-  # text: "A small structured logging helper for building wide, span-style log events."
   tagline: A small structured logging helper for building wide, span-style log events.
   actions:
     - theme: brand
