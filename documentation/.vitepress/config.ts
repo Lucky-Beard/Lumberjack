@@ -1,28 +1,24 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig } from "vitepress";
 
-// https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Lumberjack",
   description: "A small structured logging helper for building wide, span-style log events.",
   themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Examples', link: '/markdown-examples' }
+      { text: "Home", link: "/" },
+      { text: "Docs", link: "/why-wide-logging" },
     ],
 
     sidebar: [
       {
-        text: 'Examples',
+        text: "Docs",
         items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
-        ]
-      }
+          { text: "Why Wide Logging", link: "/why-wide-logging" },
+          { text: "Usage", link: "/usage" },
+        ],
+      },
     ],
 
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
-    ]
-  }
-})
+    socialLinks: [{ icon: "github", link: "https://github.com/Lucky-Beard/Lumberjack" }],
+  },
+});
