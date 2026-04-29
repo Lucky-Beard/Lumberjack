@@ -28,3 +28,37 @@
 ## Safety
 
 - `.npmrc` is ignored and may contain an npm auth token; never add or commit it.
+
+## Language
+
+**Logging Span**:
+A structured log event being accumulated around one unit of work before it is closed.
+_Avoid_: Span log, trace span, OpenTelemetry span
+
+**Closed Logging Span**:
+The finalized result of closing a **Logging Span**, containing the **Log Payload** and severity level.
+_Avoid_: Result, wrapper
+
+**Log Payload**:
+The structured data object sent to a logger or transport after a **Logging Span** is closed.
+_Avoid_: Results, raw span
+
+**Metric**:
+A named value recorded on a **Logging Span** and included in its **Log Payload**.
+_Avoid_: Field, attribute
+
+## Relationships
+
+- A **Logging Span** is closed to produce a **Closed Logging Span**.
+- A **Logging Span** contains zero or more **Metrics**.
+- A **Closed Logging Span** contains one **Log Payload**.
+
+## Example Dialogue
+
+> **Dev:** "Should this API call use a separate **Logging Span**?"
+> **Domain expert:** "Yes, it is one unit of work with its own **Metrics** and duration."
+
+## Flagged Ambiguities
+
+- "spanning logs" was used to mean **Logging Span**.
+- "field" and "attribute" are avoided in user-facing docs; the package calls named values **Metrics**.
