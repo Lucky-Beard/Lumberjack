@@ -52,7 +52,9 @@
     "lint": "oxlint",
     "docs:dev": "vitepress dev documentation",
     "docs:build": "vitepress build documentation",
-    "docs:preview": "vitepress preview documentation"
+    "docs:preview": "vitepress preview documentation",
+    "docs:worker:dev": "bun run docs:build && wrangler dev",
+    "docs:deploy": "bun run docs:build && wrangler deploy"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -62,7 +64,8 @@
     "happy-dom": "^17.4.4",
     "oxfmt": "^0.38.0",
     "oxlint": "^1.53.0",
-    "vitepress": "^2.0.0-alpha.17"
+    "vitepress": "^2.0.0-alpha.17",
+    "wrangler": "^4.86.0"
   },
   "peerDependencies": {
     "typescript": "^5"
