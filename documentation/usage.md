@@ -28,7 +28,7 @@ import { LoggingSpan } from "@luckybeard/lumberjack";
 
 This is the simplest path when your runtime already collects console logs.
 
-```ts
+```ts {4,29}
 import { LoggingSpan } from "@luckybeard/lumberjack";
 
 async function submitCheckout(cartId: string) {
@@ -88,7 +88,7 @@ Use `close()` when you want the Closed Logging Span without writing to `console`
 
 The recommended HTTP body is `{ level, data }`, because the severity level is stored on the Closed Logging Span and the Log Payload is stored on `closed.data`.
 
-```ts
+```ts {3-12}
 import { LoggingSpan, type IClosedLoggerSpan } from "@luckybeard/lumberjack";
 
 async function sendLog(closed: IClosedLoggerSpan) {
