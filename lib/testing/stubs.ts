@@ -1,4 +1,4 @@
-import type { IClosedLog, SpanLogLevels } from "../types";
+import type { IClosedLog, ILoggingSpan, SpanLogLevels } from "../types";
 
 export class ClosedLogStub implements IClosedLog {
   public get data(): Record<string, unknown> {
@@ -10,7 +10,7 @@ export class ClosedLogStub implements IClosedLog {
   }
 }
 
-export class LoggerSpanStub {
+export class LoggerSpanStub implements ILoggingSpan {
   public set_level(_level: SpanLogLevels): this {
     return this;
   }
@@ -29,5 +29,9 @@ export class LoggerSpanStub {
 
   public log_close(): IClosedLog {
     return this.close();
+  }
+
+  public set_name(_name: string): this {
+    return this;
   }
 }

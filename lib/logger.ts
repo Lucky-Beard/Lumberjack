@@ -1,3 +1,4 @@
+import { DEFAULT_SPAN_NAME_KEY } from "./constants/keys";
 import type { IClosedLog, ILoggingSpan, SpanLogLevels } from "./types";
 import { sanitize_object } from "./utils";
 
@@ -34,7 +35,7 @@ export class LoggingSpan implements ILoggingSpan {
   #span_name: string;
 
   constructor(name: string) {
-    this.#details.set("span.name", name);
+    this.#details.set(DEFAULT_SPAN_NAME_KEY, name);
     this.#details.set("span.time_start", new Date().toISOString());
     this.#start_time = Date.now();
     this.#span_name = name;
@@ -50,12 +51,12 @@ export class LoggingSpan implements ILoggingSpan {
   }
 
   public add_metric(key: string, value: unknown): this {
-    if (this.#closed) {
-      console.warn(
-        `Attempted to add metric ${key} to closed span ${this.#details.get("span.name")}`,
-      );
+    if (key?.trim() !== DEFAULT_SPAN_NAME_KEY) {
+      this.insert_metric(key, value);
     } else {
-      this.#details.set(key, this.parse_value(value));
+      console.warn(
+        `Span names should not be changed with add_metric. Use set_name() instead to set the span name on key ${DEFAULT_SPAN_NAME_KEY}. Attempted to set ${key} on span ${this.#details.get(DEFAULT_SPAN_NAME_KEY)}`,
+      );
     }
 
     return this;
@@ -66,6 +67,12 @@ export class LoggingSpan implements ILoggingSpan {
       this.add_metric(key, value);
     }
 
+    return this;
+  }
+
+  public set_name(name: string): this {
+    this.insert_metric(DEFAULT_SPAN_NAME_KEY, name);
+    this.#span_name = name;
     return this;
   }
 
@@ -111,5 +118,15 @@ export class LoggingSpan implements ILoggingSpan {
     }
 
     return value;
+  }
+
+  private insert_metric(key: string, value: unknown) {
+    if (this.#closed) {
+      console.warn(
+        `Attempted to add metric ${key} to closed span ${this.#details.get("span.name")}`,
+      );
+    } else {
+      this.#details.set(key, this.parse_value(value));
+    }
   }
 }

@@ -14,6 +14,9 @@ export interface ILoggingSpan {
   /** Set the log level used by the closed span and `log_close()`. */
   set_level(level: SpanLogLevels): this;
 
+  /** Set the name of a span at "span.name" */
+  set_name(name: string): this;
+
   /** Add or replace a metric on the span. */
   add_metric(key: string, value: unknown): this;
 

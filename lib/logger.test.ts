@@ -34,6 +34,7 @@ describe("ClosedLoggerSpan", () => {
     details.set("late.metric", "ignored");
 
     expect(closed.level).toBe("warn");
+    expect(closed.name).toBe("checkout");
     expect(closed.data).toEqual({
       "span.name": "checkout",
       "order.id": "order-1",
@@ -77,6 +78,35 @@ describe("LoggingSpan", () => {
     const closed = span.close();
 
     expect(closed.level).toBe("error");
+  });
+
+  test("updates the span name through set_name and keeps the fluent API", () => {
+    const span = LoggingSpan.start("checkout");
+
+    expect(span.set_name("checkout.retry")).toBe(span);
+
+    const closed = span.close();
+
+    expect(closed).toBeInstanceOf(ClosedLoggerSpan);
+    expect((closed as ClosedLoggerSpan).name).toBe("checkout.retry");
+    expect(closed.data["span.name"]).toBe("checkout.retry");
+  });
+
+  test("warns and ignores attempts to change the span name with add_metric", () => {
+    const warnSpy = spyOn(console, "warn").mockImplementation((..._args: unknown[]) => {});
+    const span = LoggingSpan.start("checkout");
+
+    expect(span.add_metric("span.name", "checkout.changed")).toBe(span);
+
+    const closed = span.close();
+
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy).toHaveBeenCalledWith(
+      "Span names should not be changed with add_metric. Use set_name() instead to set the span name on key span.name. Attempted to set span.name on span checkout",
+    );
+    expect(closed).toBeInstanceOf(ClosedLoggerSpan);
+    expect((closed as ClosedLoggerSpan).name).toBe("checkout");
+    expect(closed.data["span.name"]).toBe("checkout");
   });
 
   test("adds bulk metrics and lets later metric values replace earlier ones", () => {

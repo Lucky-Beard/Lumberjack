@@ -18,6 +18,13 @@
 - Main implementation is `lib/logger.ts`; types are under `lib/types`, and sanitization helpers are under `lib/utils`.
 - `dist/` is generated and ignored; do not hand-edit it.
 
+## Testing
+
+- Avoid mocks as much as possible
+- Test actual implementation, do not duplicate logic into tests
+- Use `bun-setup.ts` for test environment setup, but be aware it is not automatically included in test runs; add explicit config or flags to use it
+- Avoid tests on entry points
+
 ## Tooling Quirks
 
 - TypeScript is strict with `moduleResolution: "bundler"`, `module: "Preserve"`, `allowImportingTsExtensions`, and `noEmit`; build output comes from `Bun.build`, not `tsc`.
