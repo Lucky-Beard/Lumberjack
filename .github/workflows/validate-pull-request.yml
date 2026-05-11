@@ -1,4 +1,4 @@
-name: Checks
+name: Validate PRs
 
 on:
   pull_request:
