@@ -4,6 +4,7 @@ import { sanitize_object } from "./utils";
 export class ClosedLoggerSpan implements IClosedLog {
   #data: Record<string, unknown>;
   #level: SpanLogLevels;
+  #name: string;
 
   public get data() {
     return this.#data;
@@ -13,10 +14,15 @@ export class ClosedLoggerSpan implements IClosedLog {
     return this.#level;
   }
 
-  constructor(map: Map<string, unknown>, level: SpanLogLevels) {
+  public get name() {
+    return this.#name;
+  }
+
+  constructor(name: string, map: Map<string, unknown>, level: SpanLogLevels) {
     const asObject = Object.fromEntries(map.entries());
     this.#data = Object.seal(asObject);
     this.#level = level;
+    this.#name = name;
   }
 }
 
@@ -25,11 +31,13 @@ export class LoggingSpan implements ILoggingSpan {
   #details: Map<string, unknown> = new Map();
   #level: SpanLogLevels = "info";
   #start_time: number;
+  #span_name: string;
 
   constructor(name: string) {
     this.#details.set("span.name", name);
     this.#details.set("span.time_start", new Date().toISOString());
     this.#start_time = Date.now();
+    this.#span_name = name;
   }
 
   public set_level(level: SpanLogLevels): this {
@@ -66,7 +74,7 @@ export class LoggingSpan implements ILoggingSpan {
     this.#details.set("span.time_end", new Date().toISOString());
 
     this.#closed = true;
-    return new ClosedLoggerSpan(this.#details, this.#level);
+    return new ClosedLoggerSpan(this.#span_name, this.#details, this.#level);
   }
 
   public log_close(): IClosedLog {

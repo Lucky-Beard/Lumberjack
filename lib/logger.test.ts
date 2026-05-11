@@ -30,7 +30,7 @@ describe("ClosedLoggerSpan", () => {
       ["order.id", "order-1"],
     ]);
 
-    const closed = new ClosedLoggerSpan(details, "warn");
+    const closed = new ClosedLoggerSpan("checkout", details, "warn");
     details.set("late.metric", "ignored");
 
     expect(closed.level).toBe("warn");

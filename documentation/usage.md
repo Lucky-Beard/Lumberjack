@@ -32,9 +32,7 @@ This is the simplest path when your runtime already collects console logs.
 import { LoggingSpan } from "@luckybeard/lumberjack";
 
 async function submitCheckout(cartId: string) {
-  const span = LoggingSpan.start("checkout.submit")
-    .add_metric("cart.id", cartId)
-    .set_level("info");
+  const span = LoggingSpan.start("checkout.submit").add_metric("cart.id", cartId).set_level("info");
 
   try {
     const response = await fetch("https://payments.example.com/checkout", {
@@ -236,15 +234,15 @@ Lumberjack handles common runtime values before adding them to the Log Payload:
 
 ## API At A Glance
 
-| API | Description |
-| --- | --- |
-| `LoggingSpan.start(name)` | Starts a Logging Span and records `span.name` and `span.time_start`. |
-| `new LoggingSpan(name)` | Direct constructor. Prefer `LoggingSpan.start()` in examples and application code. |
-| `span.add_metric(key, value)` | Adds or replaces one Metric. |
-| `span.add_bulk_metrics(metrics)` | Adds or replaces several Metrics. |
-| `span.set_level(level)` | Sets the level used by `log_close()` and exposed on the Closed Logging Span. |
-| `span.close()` | Closes the span and returns a Closed Logging Span without writing to `console`. |
-| `span.log_close()` | Closes the span, logs `closed.data` through `console[closed.level]`, and returns the Closed Logging Span. |
+| API                              | Description                                                                                               |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `LoggingSpan.start(name)`        | Starts a Logging Span and records `span.name` and `span.time_start`.                                      |
+| `new LoggingSpan(name)`          | Direct constructor. Prefer `LoggingSpan.start()` in examples and application code.                        |
+| `span.add_metric(key, value)`    | Adds or replaces one Metric.                                                                              |
+| `span.add_bulk_metrics(metrics)` | Adds or replaces several Metrics.                                                                         |
+| `span.set_level(level)`          | Sets the level used by `log_close()` and exposed on the Closed Logging Span.                              |
+| `span.close()`                   | Closes the span and returns a Closed Logging Span without writing to `console`.                           |
+| `span.log_close()`               | Closes the span, logs `closed.data` through `console[closed.level]`, and returns the Closed Logging Span. |
 
 ## Runtime Requirements
 

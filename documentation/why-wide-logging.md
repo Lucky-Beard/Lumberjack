@@ -41,7 +41,7 @@ function register(user: User) {
   const span: Record<string, unknown> = {
     event_name: "user_registration",
     level: "info",
-    'user.email': user.email,
+    "user.email": user.email,
   };
 
   try {
@@ -69,12 +69,12 @@ Which would produce logs that look like this:
 
 ```json
 {
-  "event_name": "user_registration",  
-  level: "info",
+  "event_name": "user_registration",
+  "level": "info",
   "user.email": "james@email.com",
   "user.exisits": true,
   "user.created": false,
-  error: "User already exists",
+  "error": "User already exists"
 }
 ```
 
