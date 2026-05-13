@@ -1,6 +1,6 @@
 {
   "name": "@luckybeard/lumberjack",
-  "version": "0.0.9-patch.2",
+  "version": "0.0.10",
   "private": false,
   "description": "A small structured logging helper for building wide, span-style log events.",
   "author": {

@@ -164,6 +164,37 @@ span.add_bulk_metrics({
 
 If the same key is added more than once before closing, the latest value is kept.
 
+## Metric Namespaces
+
+Use `create_metric_namespace()` when you want shared Metric names across requests or modules. Create the helper once at module level and reuse it wherever those Metrics are recorded:
+
+```ts
+import { create_metric_namespace } from "@luckybeard/lumberjack";
+
+export const checkout_metric = create_metric_namespace("checkout");
+```
+
+For one Metric, call `name()`:
+
+```ts
+span.add_metric(checkout_metric.name("accepted"), true);
+```
+
+For several Metrics in the same namespace, call `metrics()` before `add_bulk_metrics()`:
+
+```ts
+span.add_bulk_metrics(
+  checkout_metric.metrics({
+    total: 129.99,
+    currency: "USD",
+  }),
+);
+```
+
+This produces Metric names like `checkout.accepted`, `checkout.total`, and `checkout.currency`. The helper only creates Metric names; values are still stored, cloned, and sanitized by the Logging Span.
+
+The `span` namespace is reserved for Lumberjack lifecycle Metrics such as `span.name`, `span.time_start`, `span.running_duration_ms`, and `span.time_end`.
+
 ## Levels
 
 Every Logging Span has a level. The default is `info`.
@@ -243,6 +274,7 @@ Lumberjack handles common runtime values before adding them to the Log Payload:
 | `span.set_level(level)`          | Sets the level used by `log_close()` and exposed on the Closed Logging Span.                              |
 | `span.close()`                   | Closes the span and returns a Closed Logging Span without writing to `console`.                           |
 | `span.log_close()`               | Closes the span, logs `closed.data` through `console[closed.level]`, and returns the Closed Logging Span. |
+| `create_metric_namespace(name)`  | Creates reusable helpers for namespaced Metric names.                                                     |
 
 ## Runtime Requirements
 

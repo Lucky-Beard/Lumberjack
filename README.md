@@ -15,10 +15,12 @@ bun add @luckybeard/lumberjack
 ## Quick Start
 
 ```ts
-import { LoggingSpan } from "@luckybeard/lumberjack";
+import { LoggingSpan, create_metric_namespace } from "@luckybeard/lumberjack";
+
+const order_metric = create_metric_namespace("order");
 
 LoggingSpan.start("checkout")
-  .add_metric("order.id", "order_123")
+  .add_metric(order_metric.name("id"), "order_123")
   .add_metric("user", {
     email: "person@example.com",
     apiKey: "secret-key",
@@ -78,6 +80,7 @@ logger[closed.level](closed.data);
 - `set_level(level: SpanLogLevels): this` sets the level used by `log_close()` and exposed on the closed span.
 - `close(): IClosedLoggerSpan` records `span.running_duration_ms` and `span.time_end`, then returns a closed span.
 - `log_close(): IClosedLoggerSpan` closes the span and logs `closed.data` through `console[closed.level]`.
+- `create_metric_namespace(namespace: string): MetricNamespace` creates reusable helpers for namespaced Metric names.
 
 ### `ClosedLoggerSpan`
 
@@ -90,6 +93,29 @@ logger[closed.level](closed.data);
 type SpanLogLevels = "info" | "warn" | "error" | "trace";
 type IClosedLoggerSpan = ClosedLoggerSpan;
 ```
+
+## Metric Namespaces
+
+Use `create_metric_namespace()` when you want shared Metric names across requests or modules:
+
+```ts
+import { create_metric_namespace } from "@luckybeard/lumberjack";
+
+export const checkout_metric = create_metric_namespace("checkout");
+```
+
+```ts
+span.add_metric(checkout_metric.name("accepted"), true);
+
+span.add_bulk_metrics(
+  checkout_metric.metrics({
+    total: 129.99,
+    currency: "USD",
+  }),
+);
+```
+
+The `span` namespace is reserved for Lumberjack lifecycle Metrics such as `span.name` and `span.time_end`.
 
 ## Metric Handling
 

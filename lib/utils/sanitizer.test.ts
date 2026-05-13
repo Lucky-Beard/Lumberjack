@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import { redact_email, redact_phone, sanitize_object } from "./sanitizer";
 
-describe("redact_email", () => {
+describe("redact_email()", () => {
   test("keeps the first two characters and email domain", () => {
     expect(redact_email("person@example.com")).toBe("pe***@example.com");
   });
@@ -13,7 +13,7 @@ describe("redact_email", () => {
   });
 });
 
-describe("redact_phone", () => {
+describe("redact_phone()", () => {
   test("keeps the first two and last three characters from string phone values", () => {
     expect(redact_phone("+15551234567")).toBe("+1***567");
   });
@@ -27,7 +27,7 @@ describe("redact_phone", () => {
   });
 });
 
-describe("sanitize_object", () => {
+describe("sanitize_object()", () => {
   test("redacts top-level sensitive fields based on case-insensitive key names", () => {
     const sanitized = sanitize_object({
       apiKey: "secret-key",
