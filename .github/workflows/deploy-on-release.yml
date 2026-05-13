@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Deploy Documentation
+    name: Deploy to npm
     runs-on: ubuntu-latest
     environment: production
 
