@@ -28,4 +28,28 @@ export interface ILoggingSpan {
 
   /** Finalize the span, log the closed data, and return it. */
   log_close(): IClosedLog;
+
+  /**
+   * Add a waypoint to the span, optionally providing a watcher function.
+   *
+   * @note - If a waypoint is watching a handle and the span is closed before it closes, the span will be ignore the closing of the waypoint.
+   *
+   * With this function you can add a waypoint either with a string like:
+   *
+   * ```ts
+   * span.waypoint("db_query");
+   * ```
+   *
+   * Or you can add a function to add start and end markers on an action
+   *
+   * ```ts
+   * await span.waypoint("db_query", async () => {
+   *   const result = await db.query("SELECT * FROM users");
+   *   span.add_metric("db_query.result_count", result.length);
+   * });
+   * ```
+   */
+  waypoint(name: string): ILoggingSpan;
+  waypoint(name: string, watcher: () => Promise<void>): Promise<ILoggingSpan>;
+  waypoint(name: string, watcher: () => void): ILoggingSpan;
 }

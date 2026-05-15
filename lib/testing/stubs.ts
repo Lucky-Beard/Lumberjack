@@ -34,4 +34,17 @@ export class LoggerSpanStub implements ILoggingSpan {
   public set_name(_name: string): this {
     return this;
   }
+
+  public waypoint(name: string): ILoggingSpan;
+  public waypoint(name: string, watcher: () => Promise<void>): Promise<ILoggingSpan>;
+  public waypoint(name: string, watcher: () => void): ILoggingSpan;
+  public waypoint(_name: string, watcher?: () => void | Promise<void>): ILoggingSpan | Promise<ILoggingSpan> {
+    if (typeof watcher === "function") {
+      const result = watcher();
+      if (result instanceof Promise) {
+        return result.then(() => this);
+      }
+    }
+    return this;
+  }
 }

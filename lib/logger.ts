@@ -33,12 +33,52 @@ export class LoggingSpan implements ILoggingSpan {
   #level: SpanLogLevels = "info";
   #start_time: number;
   #span_name: string;
+  #waypoints: string[] = ["start"];
 
   constructor(name: string) {
     this.#details.set(DEFAULT_SPAN_NAME_KEY, name);
     this.#details.set("span.time_start", new Date().toISOString());
     this.#start_time = Date.now();
     this.#span_name = name;
+  }
+
+  public waypoint(name: string): ILoggingSpan;
+  public waypoint(name: string, watcher: () => void): ILoggingSpan;
+  public waypoint(name: string, watcher: () => Promise<void>): Promise<ILoggingSpan>;
+  public waypoint(
+    name: string,
+    watcher?: () => void | Promise<void>,
+  ): ILoggingSpan | Promise<ILoggingSpan>;
+  public waypoint(name: unknown, watcher?: unknown): ILoggingSpan | Promise<ILoggingSpan> {
+    if (this.#closed) {
+      console.warn(
+        `Attempted to add waypoint ${name} to closed span ${this.#details.get(DEFAULT_SPAN_NAME_KEY)}`,
+      );
+      return this;
+    }
+
+    this.#waypoints.push(`${name}.start`);
+
+    if (typeof watcher === "function") {
+      const result = watcher();
+
+      if (result instanceof Promise) {
+        return result.then(() => {
+          if (!this.#closed) {
+            this.#waypoints.push(`${name}.end`);
+          } else {
+            console.warn(
+              `Attempted to end waypoint ${name} to closed span ${this.#details.get(DEFAULT_SPAN_NAME_KEY)}`,
+            );
+          }
+          return this;
+        });
+      } else {
+        this.#waypoints.push(`${name}.end`);
+      }
+    }
+
+    return this;
   }
 
   public set_level(level: SpanLogLevels): this {
@@ -77,10 +117,17 @@ export class LoggingSpan implements ILoggingSpan {
   }
 
   public close(): IClosedLog {
-    this.#details.set("span.running_duration_ms", Date.now() - this.#start_time);
-    this.#details.set("span.time_end", new Date().toISOString());
+    if (!this.#closed) {
+      this.#details.set("span.running_duration_ms", Date.now() - this.#start_time);
+      this.#details.set("span.time_end", new Date().toISOString());
 
-    this.#closed = true;
+      this.#closed = true;
+
+      if (this.#waypoints.length > 1) {
+        this.#waypoints.push("end");
+        this.#details.set("span.waypoints", this.#waypoints);
+      }
+    }
     return new ClosedLoggerSpan(this.#span_name, this.#details, this.#level);
   }
 

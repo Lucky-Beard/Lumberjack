@@ -211,4 +211,152 @@ describe("LoggingSpan", () => {
     expect(closed.data["ok"]).toBe(true);
     expect(closed.data["span.time_end"]).toBeDefined();
   });
+
+  test("omits span.waypoints when no waypoints are added", () => {
+    const data = LoggingSpan.start("plain").close().data;
+
+    expect(data["span.waypoints"]).toBeUndefined();
+  });
+
+  test("records a string-only waypoint as a start marker in the waypoints array", () => {
+    const span = LoggingSpan.start("pipeline");
+
+    expect(span.waypoint("db_query")).toBe(span);
+
+    const data = span.close().data;
+
+    expect(data["span.waypoints"]).toEqual(["start", "db_query.start", "end"]);
+  });
+
+  test("records start and end markers for a sync watcher waypoint", () => {
+    let watcherRan = false;
+    const span = LoggingSpan.start("pipeline");
+
+    const result = span.waypoint("transform", () => {
+      watcherRan = true;
+    });
+
+    expect(result).toBe(span);
+    expect(watcherRan).toBe(true);
+
+    const data = span.close().data;
+
+    expect(data["span.waypoints"]).toEqual([
+      "start",
+      "transform.start",
+      "transform.end",
+      "end",
+    ]);
+  });
+
+  test("records start and end markers for an async watcher waypoint", async () => {
+    let watcherRan = false;
+    const span = LoggingSpan.start("pipeline");
+
+    const result = span.waypoint("fetch", async () => {
+      watcherRan = true;
+    });
+
+    expect(result).toBeInstanceOf(Promise);
+
+    const resolved = await result;
+
+    expect(resolved).toBe(span);
+    expect(watcherRan).toBe(true);
+
+    const data = span.close().data;
+
+    expect(data["span.waypoints"]).toEqual([
+      "start",
+      "fetch.start",
+      "fetch.end",
+      "end",
+    ]);
+  });
+
+  test("records multiple waypoints in order", () => {
+    const data = LoggingSpan.start("multi")
+      .waypoint("auth")
+      .waypoint("validate")
+      .waypoint("persist")
+      .close().data;
+
+    expect(data["span.waypoints"]).toEqual([
+      "start",
+      "auth.start",
+      "validate.start",
+      "persist.start",
+      "end",
+    ]);
+  });
+
+  test("preserves waypoint order when mixing string and sync watcher waypoints", () => {
+    const data = LoggingSpan.start("mixed")
+      .waypoint("check")
+      .waypoint("transform", () => {})
+      .waypoint("done")
+      .close().data;
+
+    expect(data["span.waypoints"]).toEqual([
+      "start",
+      "check.start",
+      "transform.start",
+      "transform.end",
+      "done.start",
+      "end",
+    ]);
+  });
+
+  test("does not duplicate lifecycle fields or waypoint end marker on repeated close", () => {
+    const span = LoggingSpan.start("idempotent").waypoint("step");
+    const first = span.close();
+    const second = span.close();
+
+    expect(first.data["span.waypoints"]).toEqual(["start", "step.start", "end"]);
+    expect(second.data["span.waypoints"]).toEqual(first.data["span.waypoints"]);
+    expect(second.data["span.time_end"]).toBe(first.data["span.time_end"]);
+    expect(second.data["span.running_duration_ms"]).toBe(first.data["span.running_duration_ms"]);
+  });
+
+  test("warns and ignores waypoints added after the span is closed", () => {
+    const warnSpy = spyOn(console, "warn").mockImplementation((..._args: unknown[]) => {});
+    const span = LoggingSpan.start("sealed").waypoint("before");
+    const closed = span.close();
+
+    span.waypoint("after");
+
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(closed.data["span.waypoints"]).toEqual(["start", "before.start", "end"]);
+  });
+
+  test("does not execute a watcher when waypoint is added to a closed span", () => {
+    const warnSpy = spyOn(console, "warn").mockImplementation((..._args: unknown[]) => {});
+    let watcherRan = false;
+    const span = LoggingSpan.start("sealed").waypoint("before");
+    span.close();
+
+    span.waypoint("after", () => {
+      watcherRan = true;
+    });
+
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(watcherRan).toBe(false);
+  });
+
+  test("drops the async watcher end marker when the span closes before the watcher resolves", async () => {
+    let resolve!: () => void;
+    const gate = new Promise<void>((r) => {
+      resolve = r;
+    });
+
+    const span = LoggingSpan.start("race");
+    const waypointPromise = span.waypoint("slow", () => gate);
+
+    const closed = span.close();
+
+    resolve();
+    await waypointPromise;
+
+    expect(closed.data["span.waypoints"]).toEqual(["start", "slow.start", "end"]);
+  });
 });
